@@ -4,6 +4,9 @@ import keyboard
 
 WIDTH = 800
 HEIGHT = 500
+GAME_SPEED = 0.005
+ballSpeedX = 0
+ballSpeedY = 0
 PADDLE_SPEED = 2
 BG = "Black"
 
@@ -16,19 +19,26 @@ tk.resizable(0,0)
 
 canvas.pack()
 
-ball = canvas.create_oval((WIDTH/2)-10, (HEIGHT/2)-10, (WIDTH/2)+10, (HEIGHT/2)+10, fill="White")
+paddleStartPos = (HEIGHT/2)-120
 
-paddle1Y = (HEIGHT/2)-60
-paddle2Y = (HEIGHT/2)-60
+paddle1 = canvas.create_rectangle(25, paddleStartPos, 40, 120+paddleStartPos, fill="White", outline="White")
+paddle2 = canvas.create_rectangle(WIDTH-40, paddleStartPos, WIDTH-25, 120+paddleStartPos, fill="White", outline="White")
+ball = canvas.create_oval((WIDTH/2)-10, (HEIGHT/2)-10, (WIDTH/2)+10, (HEIGHT/2)+10, fill="White", outline="White")
 
-paddle1 = canvas.create_rectangle(25, paddle1Y, 40, 120+paddle1Y, fill="White")
-paddle2 = canvas.create_rectangle(WIDTH-40, paddle2Y, WIDTH-25, 120+paddle2Y, fill="White")
+isActive = True
 
 while True:
-    time.sleep(0.005)
+    time.sleep(GAME_SPEED)
+    
+    if isActive == True:
+        if keyboard.is_pressed('w') or keyboard.is_pressed('s'):
+            isActive = False
+            ballSpeedX = -2
+        elif keyboard.is_pressed('up arrow') or keyboard.is_pressed('down arrow'):
+            isActive = False
+            ballSpeedX = 2
 
     paddle1coords = canvas.coords(paddle1)
-
     paddle2coords = canvas.coords(paddle2)
 
     # Paddle 1
@@ -53,4 +63,14 @@ while True:
         if keyboard.is_pressed('down arrow'):
             canvas.move(paddle2, 0, PADDLE_SPEED)
 
+    p1bbox = canvas.bbox(paddle1)
+    p2bbox = canvas.bbox(paddle2)
+    ballBBox = canvas.bbox(ball)
+
+    if ballBBox[0] < p1bbox[2] < ballBBox[2]:
+        ballSpeedX = 2
+    elif ballBBox[0] < p2bbox[2] < ballBBox[2]:
+        ballSpeedX = -2
+
+    canvas.move(ball, ballSpeedX, ballSpeedY)
     canvas.update()
